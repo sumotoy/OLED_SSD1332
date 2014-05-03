@@ -23,5 +23,3 @@ Here's the connection for SPI with a module found on ebay:
 Do not use the 3V3 supply on this module, due a strange design the 3V3 pin will not drive correctly the internal higher voltage converter for the OLED so use the 5V pin.
 You can safely drive this OLED module with Teensy3 since the module accept 3V3 correctly and I don't use any input on MCU.
 Note that this module it's not configured for SPI as default so probably you need to set BS1 and BS2 jumper onboard to 0 (as showed).
-
-Please wait I publish more data before use it. It will happen in max a couple of days.
