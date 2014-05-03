@@ -12,6 +12,7 @@ Version History:
  - 0.5b1: First working release with full tested 24Mhz/DMA SPI on Teensy 3.
  - 
  
+Here's the library in action with Teensy3.
 
 [![Video](https://github.com/sumotoy/OLED_SSD1332/blob/master/Docs/CIMG6538.JPG)](https://www.youtube.com/watch?v=jM31tLOtBT4)
 
