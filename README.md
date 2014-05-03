@@ -16,4 +16,8 @@ Here's the library in action with Teensy3.
 
 [![Video](https://github.com/sumotoy/OLED_SSD1332/blob/master/Docs/CIMG6538.JPG)](https://www.youtube.com/watch?v=jM31tLOtBT4)
 
+
+![image](http://i1189.photobucket.com/albums/z437/theamra/03c4fefe-7e34-4f7d-b710-67a1f05cb7eb.jpg "ssd1332")<br>
+
+
 Please wait I publish more data before use it. It will happen in max a couple of days.
