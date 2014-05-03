@@ -6,3 +6,13 @@ The features are:
  - Compatible with Adafruit protocol, it uses Adafruit GFX library and it's fully supported.
  - Works with serial SPI protocol so only 5 or 4 pin are needed (2 of them still shareable).
  - Massive use of hardware accellerated commands for SSD chip.
+
+
+Version History:
+ - 0.5b1: First working release with full tested 24Mhz/DMA SPI on Teensy 3.
+ - 
+ 
+
+
+
+Please wait I publish more data before use it. It will happen in max a couple of days.
