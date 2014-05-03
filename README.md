@@ -16,8 +16,11 @@ Here's the library in action with Teensy3.
 
 [![Video](https://github.com/sumotoy/OLED_SSD1332/blob/master/Docs/CIMG6538.JPG)](https://www.youtube.com/watch?v=jM31tLOtBT4)
 
+Here's the connection for SPI with a module found on ebay:
 
 ![image](http://i1189.photobucket.com/albums/z437/theamra/03c4fefe-7e34-4f7d-b710-67a1f05cb7eb.jpg "ssd1332")<br>
 
+Do not use the 3V3 supply on this module, due a strange design the 3V3 pin will not drive correctly the internal higher voltage converter for the OLED so use the 5V pin.
+You can safely drive this OLED module with Teensy3 since the module accept 3V3 correctly and I don't use any input on MCU.
 
 Please wait I publish more data before use it. It will happen in max a couple of days.
