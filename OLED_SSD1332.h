@@ -53,7 +53,9 @@
 	Thanks to Paul Stoffregen for his beautiful Teensy3 and DMA SPI.
 	
 	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	Version:0.5b1: First release, compile and working.
+	Version:
+	0.5b1: First release, compile and working.
+	0.5b2: Even more faster! Tuned  a couple of fixed delays.
 	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	BugList of the current version:
 	
@@ -92,10 +94,9 @@ typedef unsigned char prog_uchar;
   #include <avr/pgmspace.h>
 #endif
 
-//#define _FASTWRITE
 
-#define _DELAYS_HWFILL		 (3)//3
-#define _DELAYS_HWLINE       (1)
+#define _DLY_LINE			400
+#define _DLY_FILL			800
 // list of the registers
 #define _CMD_DRAWLINE 		0x21
 #define _CMD_DRAWRECT 		0x22

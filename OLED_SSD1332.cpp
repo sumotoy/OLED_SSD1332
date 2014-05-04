@@ -139,7 +139,7 @@ void OLED_SSD1332::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint
             writeCommands(cmds, 8);
         }
     }//end  x1 == x2
-    delay(_DELAYS_HWLINE);
+	delayMicroseconds(_DLY_LINE);
 }
 
 /*
@@ -250,14 +250,6 @@ void OLED_SSD1332::setRegister(const uint8_t reg,uint8_t val){
 		*csport |= cspinmask;
 	} 
 
-/* 	void OLED_SSD1332::writeData16(uint16_t d){
-		*rsport |=  rspinmask;
-		*csport &= ~cspinmask;
-		spiwrite(d >> 8);
-		spiwrite(d);
-		*csport |= cspinmask;
-	}  */
-
 	void OLED_SSD1332::setBitrate(uint32_t n){
 		if (n >= 8000000) {
 			SPI.setClockDivider(SPI_CLOCK_DIV2);
@@ -302,13 +294,6 @@ void OLED_SSD1332::setRegister(const uint8_t reg,uint8_t val){
 		csport->PIO_SODR  |=  cspinmask;
 	} 
 	
-/* 	void OLED_SSD1332::writeData16(uint16_t d){
-		rsport->PIO_SODR |=  rspinmask;
-		csport->PIO_CODR  |=  cspinmask;
-		spiwrite(d >> 8);
-		spiwrite(d);
-		csport->PIO_SODR  |=  cspinmask;
-	} */
 	
 	void OLED_SSD1332::setBitrate(uint32_t n){
 		uint32_t divider=1;
@@ -349,11 +334,6 @@ void OLED_SSD1332::setRegister(const uint8_t reg,uint8_t val){
 		while (((SPI0.SR) & (15 << 12)) > (3 << 12)) ; // wait if FIFO full
 	}
 
-/* 	void OLED_SSD1332::writeData16(uint16_t d){
-		SPI0.PUSHR = d | (pcs_data << 16) | SPI_PUSHR_CTAS(1);//0:8,1:16,2:24,3:32
-		while (((SPI0.SR) & (15 << 12)) > (3 << 12)) ; // wait if FIFO full
-	} */
-	
 	/*
 	Helper:
 	This function return true only if the choosed pin can be used for CS or RS
@@ -474,7 +454,7 @@ void OLED_SSD1332::hdwre_drawRect(int16_t x, int16_t y, int16_t w, int16_t h, ui
 	cmds[1] = x; cmds[2] = y; cmds[3] = x + w - 1; cmds[4] = y + h - 1; cmds[5] = c1; cmds[6] = c2;
 	cmds[7] = c3; cmds[8] = c1; cmds[9] = c2; cmds[10] = c3;
 	writeCommands(cmds, 11);
-    delay(_DELAYS_HWFILL); 
+	delayMicroseconds(_DLY_FILL);
 }
 
 /*
@@ -497,7 +477,6 @@ void OLED_SSD1332::commonInit(){
     //Due defaults to 4mHz (clock divider setting of 21)
     SPI.setBitOrder(MSBFIRST);
     SPI.setDataMode(SPI_MODE0);
-	// toggle RST low to reset; CS low so it'll listen to us
 	*csport &= ~cspinmask;
 #elif defined(__SAM3X8E__) 
 	pinMode(_rs, OUTPUT);
@@ -522,7 +501,6 @@ void OLED_SSD1332::commonInit(){
 	 && !(_cs ==  6 && _rs ==  9) && !(_rs ==  6 && _cs ==  9)
 	 && !(_cs == 20 && _rs == 23) && !(_rs == 20 && _cs == 23)
 	 && !(_cs == 21 && _rs == 22) && !(_rs == 21 && _cs == 22)) {
-		//Serial.println("ok");
 		if (_sclk == 13) {
 			CORE_PIN13_CONFIG = PORT_PCR_MUX(2) | PORT_PCR_DSE;
 			SPCR.setSCK(13);
@@ -547,6 +525,7 @@ void OLED_SSD1332::commonInit(){
 		SPI0.MCR = SPI_MCR_MSTR | SPI_MCR_PCSIS(0x1F) | SPI_MCR_CLR_TXF | SPI_MCR_CLR_RXF;
 	} else {
 		//error! cannot continue
+		// TODO!  Escape code to stop all
 	}	
 #endif
 	if (_rst) {
