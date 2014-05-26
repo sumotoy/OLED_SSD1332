@@ -164,7 +164,6 @@ class OLED_SSD1332 : public Adafruit_GFX {
 	void goHome(void);
 	void goTo(int x, int y);
 	void setRotation(uint8_t r);
-	void test(int8_t count=255);
 	//experimental
 	void setBrightness(byte val);
 	//in case it's needed

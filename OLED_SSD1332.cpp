@@ -213,48 +213,7 @@ void OLED_SSD1332::setRotation(uint8_t x) {
   setRegister(_CMD_SETREMAP,_remapData);
 }
 
-/*
-0: fixed:Normal - pixel:0 it's the bottom, 1 it's the top
-1: fixed:Text mirrored
-2: fixed:Not drawing
-3: Correct
-*/
-void OLED_SSD1332::test(int8_t count){
-	int c,i;
-	int start;
-	int stop;
-	if (count < 65){
-		start = count;
-		stop = count+1;
-	} else {
-		start = 0;
-		stop = height();
-	}
-	drawPixel(width()/2,height()/2,0xFFE0);
-	delay(1000);
-	for (c=start;c<stop;c++){
-		setCursor(width()/2,height()/2);
-		setTextColor(0x0000, 0x0000);
-		print(88);
-		setCursor(width()/2,height()/2);
-		if (c == 0){
-			setTextColor(0xF81F, 0x0000);
-		} else {
-			setTextColor(0xFFFF, 0x0000);
-		}
-		print(c,DEC);
-		for (i=0;i<width();i++){
-			if (c > 0) drawPixel(i,c-1,0x0000);
-			drawPixel(i,c,0x07E0);
-		}
-		if (c == 0){
-			delay(1000);
-		} else {
-			delay(20);
-		}
-		
-	}
-}
+
 
 //not tested
 void OLED_SSD1332::setBrightness(byte val){
