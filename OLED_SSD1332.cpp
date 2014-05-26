@@ -115,11 +115,13 @@ void OLED_SSD1332::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint
 			cmds[1] = x0; cmds[2] = y0; cmds[3] = x1; cmds[4] = y1; cmds[5] = c1; cmds[6] = c2; cmds[7] = c3;
             writeCommands(cmds, 8);
         } else {  //  y0 == y1
-			setRegister(_CMD_SETREMAP,0x70);
+			bitClear(_remapData,1);
+			setRegister(_CMD_SETREMAP,_remapData);//0b01110000
 			cmds[0] = _CMD_DRAWLINE;
 			cmds[1] = OLED_MW - x1; cmds[2] = y1; cmds[3] = OLED_MW - x0; cmds[4] = y0; cmds[5] = c1; cmds[6] = c2; cmds[7] = c3;
 			writeCommands(cmds, 8);
-			setRegister(_CMD_SETREMAP,0x72);
+			bitSet(_remapData,1);
+			setRegister(_CMD_SETREMAP,_remapData);//0b01110010
         }
 		// end x0 > x1
     } else {  //  x0 == x1
@@ -146,39 +148,111 @@ void OLED_SSD1332::drawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint
 Hardware accellerated pixel set by drawing a 1 pixel rectangle
 */
 void OLED_SSD1332::drawPixel(int16_t x, int16_t y, uint16_t color){
-    uint8_t c1 = (color & 0xf800) >> 10, c2 = (color & 0x07e0) >> 5, c3 = (color & 0x001f) << 1;
 	if ((x < 0) || (x >= width()) || (y < 0) || (y >= height())) return;
 	// check rotation, move pixel around if necessary
 	switch (getRotation()) {
 	case 1:
 		swap(x, y);
-		x = WIDTH - x - 1;
+		x = OLED_WIDTH - x - 1;
 		break;
 	case 2:
-		x = WIDTH - x - 1;
-		y = HEIGHT - y - 1;
+		x = OLED_WIDTH - x - 1;
+		y = OLED_HEIGHT - y - 1;
 		break;
 	case 3:
 		swap(x, y);
-		y = HEIGHT - y - 1;
+		y = OLED_HEIGHT - y - 1;
 		break;
 	}
-    uint8_t cmd[] = {_CMD_DRAWRECT, (uint8_t)x, (uint8_t)y, (uint8_t)x, (uint8_t)y, c1, c2, c3,  c1, c2, c3};
+	uint8_t c1 = (color & 0xf800) >> 10, c2 = (color & 0x07e0) >> 5, c3 = (color & 0x001f) << 1;
+    uint8_t cmd[11] = {_CMD_DRAWRECT, (uint8_t)x, (uint8_t)y, (uint8_t)x, (uint8_t)y, c1, c2, c3, c1, c2, c3};
     writeCommands(cmd, 11);
 }
 
+//push 16bit color
 void OLED_SSD1332::pushColor(uint16_t color) {
   // setup for data
-	uint8_t cmd[] = {(uint8_t)(color >> 8), (uint8_t)color};
+	uint8_t cmd[2] = {(uint8_t)(color >> 8), (uint8_t)color};
 	writeCommands(cmd, 2);
 }
 
+//Hardware accellerated clear screen based on fillRect
 void OLED_SSD1332::clearScreen(int16_t color) {
 	if (color == -1){
-		uint8_t cmd[] = {_CMD_CLRWINDOW,0,0,(uint8_t)WIDTH,(uint8_t)HEIGHT};
+		uint8_t cmd[5] = {_CMD_CLRWINDOW,0,0,(uint8_t)(WIDTH),(uint8_t)(HEIGHT)};
 		writeCommands(cmd, 5);
 	} else {
-		hdwre_drawRect(0,0,width(),height(),color,true);
+		hdwre_drawRect(0,0,(uint8_t)(width()),(uint8_t)(height()),color,true);
+	}
+}
+
+void OLED_SSD1332::setRotation(uint8_t x) {
+  rotation = (x & 3);
+  switch(rotation) {
+   case 0:
+		_width  = WIDTH;
+		_height = HEIGHT;
+		bitClear(_remapData,4);
+		break;
+   case 1:
+		_width  = HEIGHT;
+		_height = WIDTH;
+		bitClear(_remapData,4);
+		break;
+   case 2:
+		_width  = WIDTH;
+		_height = HEIGHT;
+		bitClear(_remapData,4);
+		break;
+   case 3:
+		_width  = HEIGHT;
+		_height = WIDTH;
+		bitClear(_remapData,4);
+		break;
+  }
+  setRegister(_CMD_SETREMAP,_remapData);
+}
+
+/*
+0: fixed:Normal - pixel:0 it's the bottom, 1 it's the top
+1: fixed:Text mirrored
+2: fixed:Not drawing
+3: Correct
+*/
+void OLED_SSD1332::test(int8_t count){
+	int c,i;
+	int start;
+	int stop;
+	if (count < 65){
+		start = count;
+		stop = count+1;
+	} else {
+		start = 0;
+		stop = height();
+	}
+	drawPixel(width()/2,height()/2,0xFFE0);
+	delay(1000);
+	for (c=start;c<stop;c++){
+		setCursor(width()/2,height()/2);
+		setTextColor(0x0000, 0x0000);
+		print(88);
+		setCursor(width()/2,height()/2);
+		if (c == 0){
+			setTextColor(0xF81F, 0x0000);
+		} else {
+			setTextColor(0xFFFF, 0x0000);
+		}
+		print(c,DEC);
+		for (i=0;i<width();i++){
+			if (c > 0) drawPixel(i,c-1,0x0000);
+			drawPixel(i,c,0x07E0);
+		}
+		if (c == 0){
+			delay(1000);
+		} else {
+			delay(20);
+		}
+		
 	}
 }
 
@@ -192,9 +266,7 @@ void OLED_SSD1332::setBrightness(byte val){
 	}
 }
 
-/********************************* low level pin initialization */
-
-
+/********************************* library */
 OLED_SSD1332::OLED_SSD1332(uint8_t cs, uint8_t rs, uint8_t rst) : Adafruit_GFX(OLED_WIDTH, OLED_HEIGHT) {
     _cs = cs;
     _rs = rs;
@@ -217,7 +289,7 @@ void OLED_SSD1332::setRegister(const uint8_t reg,uint8_t val){
 	writeCommands(cmd,2);
 }
 
-/********************************** low level pin interface */
+/********************************** low level pin and SPI transfer based on MCU */
 #ifdef __AVR__
 
 	inline void OLED_SSD1332::spiwrite(uint8_t c){
@@ -299,8 +371,6 @@ void OLED_SSD1332::setRegister(const uint8_t reg,uint8_t val){
 		SPI.setClockDivider(divider);
 	}
 #elif defined(__MK20DX128__) || defined(__MK20DX256__)
-	
-	
 	void OLED_SSD1332::writeCommand(uint8_t c){
 		SPI0.PUSHR = c | (pcs_command << 16) | SPI_PUSHR_CTAS(0);
 		while (((SPI0.SR) & (15 << 12)) > (3 << 12)) ; // wait if FIFO full
@@ -331,7 +401,7 @@ void OLED_SSD1332::setRegister(const uint8_t reg,uint8_t val){
 	
 	/*
 	Helper:
-	This function configure the correct pin
+	This function configure register in relation to pin
 	*/
 	static uint8_t spi_configure_cs_pin(uint8_t pin){
 		switch (pin) {
@@ -378,9 +448,11 @@ void OLED_SSD1332::setRegister(const uint8_t reg,uint8_t val){
 
 bool OLED_SSD1332::reversalTool(bool rev){
 	if (rev == true){
-		setRegister(_CMD_SETREMAP,0x72);
+		bitSet(_remapData,1);
+		setRegister(_CMD_SETREMAP,_remapData);
 	} else {
-		setRegister(_CMD_SETREMAP,0x70);
+		bitClear(_remapData,1);
+		setRegister(_CMD_SETREMAP,_remapData);////0b01110000
 	}
 	return rev;
 }
@@ -400,32 +472,90 @@ bool OLED_SSD1332::fillTool(bool fillState){
 Hardware accellerated Draw Rect (filled or not)
 */
 void OLED_SSD1332::hdwre_drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color, bool filled){
-    uint8_t c1 = (color & 0xF800) >> 10, c2 = (color & 0x07E0) >> 5, c3 = (color & 0x001F) << 1;
+    #if defined(__MDBG)
+	Serial.println();
+	Serial.print("oX:");
+	Serial.print(x,DEC);
+	Serial.print(" oY:");
+	Serial.print(y,DEC);
+	Serial.print(" oW:");
+	Serial.print(w,DEC);
+	Serial.print(" oH:");
+	Serial.print(h,DEC);
+	Serial.print(" - ");
+	#endif
 	//rotation??
 	switch (getRotation()) {
 	case 1:
 		swap(x, y);
 		swap(w, h);
-		x = WIDTH - x - 1;
+		//x = WIDTH - x - 1;
+		x = width() - x - 1;
+		#if defined(__MDBG)
+		Serial.print(" nX:");
+		Serial.print(x,DEC);
+		Serial.print(" nY:");
+		Serial.print(y,DEC);
+		Serial.print(" nW:");
+		Serial.print(w,DEC);
+		Serial.print(" nH:");
+		Serial.print(h,DEC);
+		Serial.print(" -> ");
+		#endif
 		break;
 	case 2:
-		x = WIDTH - x - 1;
-		y = HEIGHT - y - 1;
+		//x = WIDTH - x - 1;
+		//y = HEIGHT - y - 1;
+		x = width() - x - 1;
+		y = height() - y - 1;
+		#if defined(__MDBG)
+		Serial.print(" nX:");
+		Serial.print(x,DEC);
+		Serial.print(" nY:");
+		Serial.print(y,DEC);
+		Serial.print(" nW:");
+		Serial.print(w,DEC);
+		Serial.print(" nH:");
+		Serial.print(h,DEC);
+		Serial.print(" -> ");
+		#endif
 		break;
 	case 3:
 		swap(x, y);
 		swap(w, h);
-		y = HEIGHT - y - 1;
+		//y = HEIGHT - y - 1;
+		y = height() - y - 1;
+		#if defined(__MDBG)
+		Serial.print(" nX:");
+		Serial.print(x,DEC);
+		Serial.print(" nY:");
+		Serial.print(y,DEC);
+		Serial.print(" nW:");
+		Serial.print(w,DEC);
+		Serial.print(" nH:");
+		Serial.print(h,DEC);
+		Serial.print(" -> ");
+		#endif
 		break;
 	}
 	// Bounds check
-	if ((x >= WIDTH) || (y >= HEIGHT)) return;
-	if (y+h > HEIGHT) h = HEIGHT - y;
-	if (x+w > WIDTH) w = WIDTH - x;
+	//if ((x >= WIDTH) || (y >= HEIGHT)) return;
+	//if (x >= width() || y >= height()) return;
+	if ((y+h) > HEIGHT) h = HEIGHT - y;
+	if ((x+w) > WIDTH) w = WIDTH - x;
+	#if defined(__MDBG)
+	Serial.print(" fX:");
+	Serial.print(x,DEC);
+	Serial.print(" fY:");
+	Serial.print(y,DEC);
+	Serial.print(" fW:");
+	Serial.print(w,DEC);
+	Serial.print(" fH:");
+	Serial.print(h,DEC);
+	Serial.println();
+	#endif
 	
-	uint8_t cmds[11];
-	
-    //  to fill or not to?
+    //  to fill or not to fill?
     if (filled) {
         if (!filling) filling = fillTool(true);
     } else {
@@ -433,10 +563,16 @@ void OLED_SSD1332::hdwre_drawRect(int16_t x, int16_t y, int16_t w, int16_t h, ui
     }
 
     if (reversal) reversal = reversalTool(false);
+	uint8_t c1 = (color & 0xF800) >> 10, c2 = (color & 0x07E0) >> 5, c3 = (color & 0x001F) << 1;
     //  draw/fill the rectangle
+	uint8_t cmds[11];//container
 	cmds[0] = _CMD_DRAWRECT;
-	cmds[1] = x; cmds[2] = y; cmds[3] = x + w - 1; cmds[4] = y + h - 1; cmds[5] = c1; cmds[6] = c2;
-	cmds[7] = c3; cmds[8] = c1; cmds[9] = c2; cmds[10] = c3;
+	cmds[1] = x; //x1
+	cmds[2] = y; //y1
+	cmds[3] = (x + w) - 1; //x2
+	cmds[4] = (y + h) - 1; //y2
+	cmds[5] = c1; cmds[6] = c2; cmds[7]  = c3; //color h
+	cmds[8] = c1; cmds[9] = c2; cmds[10] = c3; //color l
 	writeCommands(cmds, 11);
 	delayMicroseconds(_DLY_FILL);
 }
@@ -525,6 +661,19 @@ void OLED_SSD1332::commonInit(){
 		digitalWrite(_rst, HIGH);
 		delay(500);
 	}
+	_remapData = 0b01100010;
+	/*
+	0x70: //0b01110000
+	0x72: //0b01110010
+	
+	h adrs increment
+	95 mapped to 0
+	x
+	x
+	scan 0 to n-1
+	enable com split
+	65Kcolors
+	*/
 }
 
 /*
@@ -535,12 +684,20 @@ void OLED_SSD1332::chipInit() {
 	//set SSD chip registers
 	uint8_t cmd[33];
 	writeCommand(_CMD_DISPLAYOFF);  	
+	/*
+	0) - 0:H address increment / 1:V address increment
+	1) - 0:0 mapped to 0 / 1:95 mapped to 0
+	2) - na
+	3) - na
+	4) - 0:scan from com 0 to com n-1 / 1:scan from com n-1 to com 0
+	5) - 0:disable com split / 1:enable com split
+	6-7) - 00:256 colors / 01:65K colors
+	*/
 	writeCommand(_CMD_SETREMAP); 	
-	writeCommand(0b01100010);
-	//writeCommand(0b11100010);
+	writeCommand(_remapData);////0b01100010
 	setRegister(_CMD_FILL,0x01);
 	setRegister(_CMD_STARTLINE,0x00);//default 0x00	
-	setRegister(_CMD_DISPLAYOFFSET,0x01);//default 0x00
+	setRegister(_CMD_DISPLAYOFFSET,0x00);//default 0x00
 	setRegister(_CMD_PHASEPERIOD,0b10110001);
 	setRegister(_CMD_SETMULTIPLEX,0x3F);
 	setRegister(_CMD_SETMASTER,0x8E);

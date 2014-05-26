@@ -57,6 +57,7 @@
 	0.5b1: First release, compile and working.
 	0.5b2: Even more faster! Tuned  a couple of fixed delays.
 	0.6b1: Cleaned code, some useless functions erased.
+	0.7b1: Fixed several bugs, still fixing rotation bug.
 	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	BugList of the current version:
 	
@@ -66,6 +67,8 @@
 
 #ifndef _OLED_SSD1332H_
 #define _OLED_SSD1332H_
+
+//#define __MDBG
 
 #if ARDUINO >= 100
  #include "Arduino.h"
@@ -160,6 +163,8 @@ class OLED_SSD1332 : public Adafruit_GFX {
 	void clearScreen(int16_t color = 0x0000);
 	void goHome(void);
 	void goTo(int x, int y);
+	void setRotation(uint8_t r);
+	void test(int8_t count=255);
 	//experimental
 	void setBrightness(byte val);
 	//in case it's needed
@@ -170,6 +175,7 @@ class OLED_SSD1332 : public Adafruit_GFX {
 	volatile bool 	reversal;
 	volatile bool 	filling;
 	bool			_inited;
+	uint8_t			_remapData;
 	void 			writeCommand(uint8_t c);
 	void  			writeCommands(uint8_t *cmd, uint8_t length);
 	void 			setRegister(const uint8_t reg,uint8_t val);
