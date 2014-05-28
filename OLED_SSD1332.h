@@ -58,10 +58,12 @@
 	0.5b2: Even more faster! Tuned  a couple of fixed delays.
 	0.6b1: Cleaned code, some useless functions erased.
 	0.7b1: Fixed several bugs, still fixing rotation bug.
+	0.7b5: Small optimizations, fixed setRotation(0) and setRotation(2)
 	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	BugList of the current version:
 	
 	- Still some problems with colors. 
+	- setRotation(1) and setRotation(3) still buggy.
 */
 
 
@@ -164,6 +166,7 @@ class OLED_SSD1332 : public Adafruit_GFX {
 	void goHome(void);
 	void goTo(int x, int y);
 	void setRotation(uint8_t r);
+	//void test(int8_t count=255);
 	//experimental
 	void setBrightness(byte val);
 	//in case it's needed
@@ -171,14 +174,14 @@ class OLED_SSD1332 : public Adafruit_GFX {
 	void setBitrate(uint32_t n);//speed for the SPI interface
   
  private:
-	volatile bool 	reversal;
-	volatile bool 	filling;
+	volatile bool 	_remap;
+	volatile bool 	_fillEnabled;
 	bool			_inited;
 	uint8_t			_remapData;
 	void 			writeCommand(uint8_t c);
 	void  			writeCommands(uint8_t *cmd, uint8_t length);
 	void 			setRegister(const uint8_t reg,uint8_t val);
-	bool 			reversalTool(bool rev);//helper
+	bool 			remapDirection(bool rev);//helper
 	bool 			fillTool(bool fillState);//helper
 	void 			hdwre_drawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color, bool filled = false);
 	
