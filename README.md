@@ -13,7 +13,8 @@ If you plan to use the original Adafruit_GFX library you can still use it! Just 
 ```
 -------------------------------------------------------------------------------------------------------------------------
 
-This it's a Hyper Fast library for drive solomon tech SSD1332 OLED displays. It's compatible with Arduino, Arduino DUE and Teensy 3.x and uses native SPI.
+This it's a Hyper Fast library for drive solomon tech SSD1332 OLED displays. It's compatible with Arduino, Arduino DUE and Teensy 3.x and uses native SPI. SSD1332 has some hyperfast hardware accellerated commands but they are tricky to use due the bad implementation of Solomon, this is why Adafruit and all the library I've seen around avoid to use them. This library try to use only the hardware accellerated commands in combination with the fastest SPI routines available to push at limits this OLED.
+
 The features are:
  - Hyper Fast speed. On Teensy 3.x it uses SPI DMA at 24Mhz.
  - Compatible with Adafruit protocol, it uses Adafruit GFX library and it's fully supported.
@@ -25,6 +26,11 @@ Version History:
  - 0.5b1: First working release with full tested 24Mhz/DMA SPI on Teensy 3.
  - 0.5b2: Even faster!
  - 0.6b1: Several bug fixed in particular an error in initalization. Started fixing rotation problems.
+ - 0.7b5: Fixed setRotation(0) and setRotation(2), code optimizations.
+
+Current Bugs:
+ - On my display RED still looks kinda orange. I guess have to tune the data on initialization.
+ - setRotation(1) and setRotation(3) still not work properly
  
 Here's the library in action with Teensy3.
 
