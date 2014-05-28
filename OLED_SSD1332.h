@@ -59,11 +59,12 @@
 	0.6b1: Cleaned code, some useless functions erased.
 	0.7b1: Fixed several bugs, still fixing rotation bug.
 	0.7b5: Small optimizations, fixed setRotation(0) and setRotation(2)
+	0.7b6: Fixed a bug on setRotation(2). Better compatibility for setRotation(1) and setRotation(3), almost fixed
 	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	BugList of the current version:
 	
 	- Still some problems with colors. 
-	- setRotation(1) and setRotation(3) still buggy.
+	- Still some minor bugs on setRotation(1) and setRotation(3) but almost fixed.
 */
 
 

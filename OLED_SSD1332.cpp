@@ -148,7 +148,7 @@ void OLED_SSD1332::drawPixel(int16_t x, int16_t y, uint16_t color){
 	switch (getRotation()) {
 	case 1:
 		swap(x, y);
-		x = OLED_MW - x;
+		//x = OLED_MW - x;//HH2
 		break;
 	case 2:
 		x = OLED_MW - x;
@@ -193,7 +193,7 @@ void OLED_SSD1332::setRotation(uint8_t x) {
    case 1:
 		_width  = HEIGHT;
 		_height = WIDTH;
-		bitClear(_remapData,4);
+		bitSet(_remapData,4);
 		break;
    case 2:
 		_width  = WIDTH;
@@ -485,14 +485,14 @@ void OLED_SSD1332::hdwre_drawRect(int16_t x, int16_t y, int16_t w, int16_t h, ui
 	switch (getRotation()) {
 	case 0:						//UpsideDown
 	case 2:
-		if ((y+h) > HEIGHT) h = HEIGHT - y;
-		if ((x+w) > WIDTH) w = WIDTH - x;						
+		//if ((y+h) > HEIGHT) h = HEIGHT - y;
+		//if ((x+w) > WIDTH) w = WIDTH - x;						
 		break;
 	case 1:
-		swap(x, y);
+		//swap(x, y);
 		swap(w, h);
 		//x = WIDTH - x - 1;
-		x = width() - x - 1;
+		//x = width() - x - 1;
 		#if defined(__MDBG)
 		Serial.print(" nX:");
 		Serial.print(x,DEC);
@@ -528,7 +528,7 @@ void OLED_SSD1332::hdwre_drawRect(int16_t x, int16_t y, int16_t w, int16_t h, ui
 		swap(x, y);
 		swap(w, h);
 		//y = HEIGHT - y - 1;
-		y = height() - y - 1;
+		//y = height() - y - 1;
 		#if defined(__MDBG)
 		Serial.print(" nX:");
 		Serial.print(x,DEC);
