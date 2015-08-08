@@ -27,6 +27,7 @@ Version History:
  - 0.5b2: Even faster!
  - 0.6b1: Several bug fixed in particular an error in initalization. Started fixing rotation problems.
  - 0.7b5: Fixed setRotation(0) and setRotation(2), code optimizations.
+ - 0.7b6:Compatible with Teensyduino 1.24, fixed rotation (thanks fxmech)
 
 Current Bugs:
  - On my display RED still looks kinda orange. I guess have to tune the data on initialization.
