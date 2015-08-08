@@ -60,6 +60,7 @@
 	0.7b1: Fixed several bugs, still fixing rotation bug.
 	0.7b5: Small optimizations, fixed setRotation(0) and setRotation(2)
 	0.7b6: Fixed a bug on setRotation(2). Better compatibility for setRotation(1) and setRotation(3), almost fixed
+	0.7b7:Updated for Teensyduino 1.24, fix rotation by fxmech
 	+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	BugList of the current version:
 	
