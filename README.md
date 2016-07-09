@@ -1,5 +1,6 @@
 OLED_SSD1332
 ============
+<b>OBSOLETE! Please use this:</b> https://github.com/sumotoy/SSD_13XX<br>
 ------------------------------------------------------------------------------------------------------------------------
 ATTENTION!
 This library it's now using a modified version of Adafruit_GFX library: 
